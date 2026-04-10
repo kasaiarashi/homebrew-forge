@@ -16,20 +16,17 @@ class ForgeServer < Formula
   end
 
   def install
-    # The release tarballs ship with two binaries plus a UI bundle and
-    # a pair of config templates. Brew strips the leading
-    # `forge-server-macos-*/` directory by default, so the working tree
-    # already has these at the top level.
+    # The release tarball is shared with the sibling `forge-web` formula
+    # and ships both binaries, the UI bundle, and both config templates.
+    # This formula only owns the gRPC server half so each component has
+    # its own `brew services` lifecycle.
     bin.install "forge-server"
-    bin.install "forge-web"
-    (share/"forge").install "ui"
 
-    # Install config templates non-destructively into HOMEBREW_PREFIX/etc.
-    # The templates ship with `./forge-data` as a relative `base_path`,
-    # which is fragile under launchd because the working directory isn't
-    # guaranteed. We rewrite it to an absolute path under
-    # HOMEBREW_PREFIX/var/forge so the data dir is stable regardless of
-    # how the daemon is started.
+    # Install the config template non-destructively into etc. The shipped
+    # template uses `./forge-data` as a relative `base_path`, which is
+    # fragile under launchd because the working directory isn't
+    # guaranteed. Rewrite it to an absolute path under var/forge so the
+    # data dir is stable regardless of how the daemon is started.
     (etc/"forge").mkpath
     (var/"forge").mkpath
 
@@ -38,24 +35,21 @@ class ForgeServer < Formula
       cfg.gsub!('base_path = "./forge-data"', "base_path = \"#{var}/forge\"")
       (etc/"forge/forge-server.toml").write cfg
     end
-
-    unless (etc/"forge/forge-web.toml").exist?
-      cfg = File.read("forge-web.toml")
-      cfg.gsub!('static_dir = "./ui"', "static_dir = \"#{share}/forge/ui\"")
-      (etc/"forge/forge-web.toml").write cfg
-    end
   end
 
   def caveats
     <<~EOS
-      Forge server installed.
+      Forge VCS server installed.
 
         Config:  #{etc}/forge/forge-server.toml
         Data:    #{var}/forge
-        Web UI:  #{share}/forge/ui
 
       Start the daemon:
         brew services start forge-server
+
+      To also run the web UI, install the sibling formula:
+        brew install kasaiarashi/forge/forge-web
+        brew services start forge-web
 
       Then point clients at https://<this-host>:9876 and run `forge login`.
       The first client connection will show the self-signed CA fingerprint
