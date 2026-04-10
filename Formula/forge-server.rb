@@ -7,11 +7,11 @@ class ForgeServer < Formula
   on_macos do
     on_arm do
       url "https://github.com/kasaiarashi/forge/releases/download/v0.1.0/forge-server-macos-arm64.tar.gz"
-      sha256 "fd2486717978f9faa643cec571d6380eddda0af093e5e22e6b9aeaf2a04c86cb"
+      sha256 "30971de2c945cd257d5f1bc06958b3d18430f225c9ffda9177f86054205a8bf1"
     end
     on_intel do
       url "https://github.com/kasaiarashi/forge/releases/download/v0.1.0/forge-server-macos-amd64.tar.gz"
-      sha256 "691e10622d193af82dfd3b9149084f2c430fe0bbc953ac88dde462a44661e6c7"
+      sha256 "59c36191e87bcf006eabd5f167dabbe8156ba58ae0cea3607aa784cf8f567c30"
     end
   end
 
